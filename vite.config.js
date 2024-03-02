@@ -5,6 +5,9 @@ export default ({ mode }) => {
   import.meta.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
   return defineConfig({
-    base: '/Spotify-Visualizer'
+    base: '/Spotify-Visualizer',
+    build: {
+      target: "ES2022" // <--------- ✅✅✅✅✅✅
+    },
   });
 };
