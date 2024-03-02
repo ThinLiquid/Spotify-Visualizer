@@ -155,7 +155,7 @@ const load = async (songId: string) => {
         })
         .on('load', (e) => {
           if (textColor == null) {
-            const [r, g, b] = colorThief.getColor(e.target);
+            const [r, g, b] = colorThief.getColor(e.target as HTMLImageElement);
             bgColor = `rgb(${r}, ${g}, ${b})`;
             document.body.style.background = `rgb(${r}, ${g}, ${b})`;
           }
