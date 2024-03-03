@@ -37,6 +37,10 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm install
+      - name: Add environment variables
+        run: |
+          echo ${{ secrets.ENV }} >> .env
+          cat .env
       - name: Build
         run: npm run build
       - name: Setup Pages
