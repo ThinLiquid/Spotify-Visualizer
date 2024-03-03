@@ -158,7 +158,9 @@ export const handleProgressBar = (
 
 export const handleMetadata = (
   metadata: MediaMetadata,
-  i: number,
+  addIndex: () => void,
+  subIndex: () => void,
+  getIndex: () => number,
   load: Function,
   queue: Object[],
   audio: HTMLAudioElement
@@ -171,11 +173,11 @@ export const handleMetadata = (
     audio.pause()
   })
   navigator.mediaSession.setActionHandler('previoustrack', () => {
-    load(queue[i - 1])
-    i--
+    load(queue[getIndex() - 1])
+    subIndex()
   })
   navigator.mediaSession.setActionHandler('nexttrack', () => {
-    load(queue[i + 1])
-    i++
+    load(queue[getIndex() + 1])
+    addIndex()
   })
 }

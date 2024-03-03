@@ -231,7 +231,9 @@ const load = async (songId: string): Promise<void> => {
     recommended.tracks.forEach((track: any) => {
       queue.push(track.id)
     })
-  } else {
+  }
+
+  if (i === 0) {
     queue.push(songId)
   }
 
@@ -240,7 +242,7 @@ const load = async (songId: string): Promise<void> => {
     i++
   }
 
-  handleMetadata(metadata, i, load, queue, audio)
+  handleMetadata(metadata, () => i++, () => i--, () => i, load, queue, audio)
 
   new HTML('div').attr({ id: 'player' }).appendTo(container)
 }
