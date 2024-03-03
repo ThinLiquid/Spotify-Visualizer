@@ -126,8 +126,9 @@ const load = async (songId: string): Promise<void> => {
   })
 
   for (let v = 0; 'videoId' in searchData[v]; v++) {
+    if (searchData[v].genre !== "Music") continue
+    console.log(searchData[v])
     videoData = await getYouTubeVideo((searchData[v] as SearchVideo).videoId)
-    if (videoData.genre !== "Music") continue
     if (videoData !== null) break
   }
 
