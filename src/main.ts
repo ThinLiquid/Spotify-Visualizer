@@ -231,8 +231,9 @@ const load = async (songId: string): Promise<void> => {
     recommended.tracks.forEach((track: any) => {
       queue.push(track.id)
     })
+  } else {
+    queue.push(songId)
   }
-  queue.push(songId)
 
   audio.onended = async () => {
     load(queue[i + 1]).catch(e => console.error(e))
