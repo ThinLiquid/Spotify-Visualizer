@@ -199,13 +199,15 @@ const load = async (songId: string): Promise<void> => {
   console.log(videoData?.adaptiveFormats)
 
   if (videoData?.adaptiveFormats == null) throw new Error('No formats found!')
-  for (const fmt of videoData?.adaptiveFormats) {
-    const { itag } = fmt;
-    if (itags.includes(itag)) {
-        format = fmt;
-        url = fmt.url;
-        break;
+  for (const itag of itags) {
+    for (const fmt of videoData.adaptiveFormats) {
+      if (fmt.itag === itag) {
+        format = fmt
+        url = fmt.url
+        break
+      }
     }
+    if (format) break
   }
 
   if (url == null) {
