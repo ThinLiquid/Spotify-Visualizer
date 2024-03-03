@@ -11,7 +11,7 @@ import {
   getSpotifyResults
 } from './spotify'
 import { getYouTubeResults, getYouTubeVideo } from './youtube'
-import { AdaptiveFormat, SearchVideo } from './types'
+import { SearchVideo } from './types'
 import { audioUrlToDataUrl, decimalToRGB, getContrastColor } from './utils'
 import {
   handleAnimations,
@@ -192,12 +192,21 @@ const load = async (songId: string): Promise<void> => {
     '139'
   ]
 
-  const format = videoData?.adaptiveFormats.find(
-    (x: AdaptiveFormat, index: number) => x.itag === itags[index]
-  )
-  const url = format?.url
+  let format
+  let url
 
-  if (url == null) throw new Error('URL is null!')
+  for (const itag of itags) {
+    format = videoData?.adaptiveFormats.find(x => x.itag === itag)
+    if (format !== null) {
+      url = format?.url
+      break
+    }
+  }
+
+  if (url == null) {
+    throw new Error('URL is null!')
+  }
+
   console.log(`success ${format?.itag as string}`)
 
   audio.src = await audioUrlToDataUrl(
