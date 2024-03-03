@@ -198,9 +198,9 @@ const load = async (songId: string): Promise<void> => {
 
   console.log(videoData?.adaptiveFormats)
 
-  for (let i = videoData?.adaptiveFormats.length - 1; i >= 0; i--) {
+  for (let i = videoData?.adaptiveFormats?.length - 1; i >= 0; i--) {
     const itag = videoData?.adaptiveFormats[i].itag
-    if (arrayOfItags.includes(itag)) {
+    if (itags.includes(itag)) {
         format = videoData?.adaptiveFormats[i]
         url = videoData?.adaptiveFormats[i].url
         break; // Stop iterating once the highest itag is found
