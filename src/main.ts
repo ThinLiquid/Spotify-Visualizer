@@ -203,10 +203,12 @@ const load = async (songId: string): Promise<void> => {
     url = videoData?.adaptiveFormats.find(
       (x: AdaptiveFormat) => x.itag === itags[_itag]
     )?.url
+    console.log('tried ' + itags[_itag])
     _itag++
   }
 
   if (url == null) throw new Error('URL is null!')
+  console.log('success ' + itags[_itag])
 
   audio.src = await audioUrlToDataUrl(
     `https://corsproxy.org/?${encodeURIComponent(
