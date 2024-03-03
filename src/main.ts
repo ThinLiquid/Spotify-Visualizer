@@ -199,9 +199,12 @@ const load = async (songId: string): Promise<void> => {
 
   for (const itag of itags) {
     format = videoData?.adaptiveFormats.find(x => x.itag === itag)
+    console.log(format)
     if (format !== null) {
-      url = format?.url
-      break
+      if (format?.url !== null) {
+        url = format?.url
+        break
+      }
     } else {
       console.log(`failed ${itag}`)
     }
