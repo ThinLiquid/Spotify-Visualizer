@@ -1,10 +1,10 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite'
 
 export default ({ mode }) => {
   return defineConfig({
     base: '/Spotify-Visualizer',
     build: {
-      target: "ES2022"
-    },
-  });
-};
+      target: 'ES2022'
+    }
+  })
+}
