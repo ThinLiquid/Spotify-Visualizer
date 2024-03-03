@@ -192,24 +192,13 @@ const load = async (songId: string): Promise<void> => {
     '139'
   ]
 
-  let _itag = 0
-  let url = null
-
-  while (url == null) {
-    if (_itag === itags.length) break
-    url = videoData?.adaptiveFormats.find(
-      (x: AdaptiveFormat) => {
-        console.log(x.itag)
-        return x.itag === itags[_itag]
-      }
-    )?.url
-    console.log('tried ' + itags[_itag], url)
-    if (url == null) _itag++
-    else break
-  }
+  const format = videoData?.adaptiveFormats.find(
+    (x: AdaptiveFormat, index: number) => x.itag === itags[index]
+  )
+  const url = format?.url
 
   if (url == null) throw new Error('URL is null!')
-  console.log('success ' + itags[_itag])
+  console.log(`success ${format?.itag as string}`)
 
   audio.src = await audioUrlToDataUrl(
     `https://corsproxy.org/?${encodeURIComponent(
