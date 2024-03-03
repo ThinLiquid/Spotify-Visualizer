@@ -160,11 +160,12 @@ const load = async (songId: string): Promise<void> => {
           height: '35px'
         })
         .on('load', (e) => {
-          if (textColor == null) {
-            const [r, g, b] = colorThief.getColor(e.target as HTMLImageElement)
-            bgColor = `rgb(${r}, ${g}, ${b})`
-            document.body.style.background = `rgb(${r}, ${g}, ${b})`
+          if (textColor != null) {
+            return;
           }
+          const [r, g, b] = colorThief.getColor(e.target as HTMLImageElement)
+          bgColor = `rgb(${r}, ${g}, ${b})`
+          document.body.style.background = `rgb(${r}, ${g}, ${b})`
         }),
       new HTML('div')
         .styleJs({
@@ -197,24 +198,21 @@ const load = async (songId: string): Promise<void> => {
 
   console.log(videoData?.adaptiveFormats)
 
-  for (const itag of itags) {
-    format = videoData?.adaptiveFormats.find(x => x.itag === itag)
-    console.log(format)
-    if (format !== null) {
-      if (format?.url !== null) {
-        url = format?.url
-        break
-      }
-    } else {
-      console.log(`failed ${itag}`)
+  for (let i = videoData?.adaptiveFormats.length - 1; i >= 0; i--) {
+    const itag = videoData?.adaptiveFormats[i].itag
+    if (arrayOfItags.includes(itag)) {
+        format = videoData?.adaptiveFormats[i]
+        url = videoData?.adaptiveFormats[i].url
+        break; // Stop iterating once the highest itag is found
     }
   }
 
   if (url == null) {
+    console.log('fail', format, url)
     throw new Error('URL is null!')
   }
 
-  console.log(`success ${format?.itag as string} ${url}`)
+  console.log('success', format, url)
 
   audio.src = await audioUrlToDataUrl(
     `https://corsproxy.org/?${encodeURIComponent(
@@ -242,10 +240,10 @@ const load = async (songId: string): Promise<void> => {
     handleProgressBar(progress, overlay, songId, audio)
     handleAnimations(container, overlay, songId, audioFeatures)
 
-    if (lyricsData !== null) {
-      await handleLyrics(container, audio, lyricsData, songId)
-    } else {
+    if (lyricsData === null) {
       new HTML('h1').text("Can't find lyrics...").appendTo(container)
+    } else {
+      await handleLyrics(container, audio, lyricsData, songId)
     }
   }
 
