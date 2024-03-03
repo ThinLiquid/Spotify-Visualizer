@@ -125,6 +125,8 @@ const load = async (songId: string): Promise<void> => {
     width: '100%'
   })
 
+  console.log(searchData)
+
   for (const data of searchData) {
     if (!('videoId' in data)) continue
     videoData = await getYouTubeVideo((data as SearchVideo).videoId)
