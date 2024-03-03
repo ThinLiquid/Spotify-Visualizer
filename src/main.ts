@@ -108,7 +108,6 @@ let i = 0
 
 const load = async (songId: string): Promise<void> => {
   (window as any).prev = songId
-  container.html('')
   progress.styleJs({
     animation: 'loading 1s infinite linear',
     width: '100%'
@@ -140,6 +139,8 @@ const load = async (songId: string): Promise<void> => {
 
     document.body.style.background = `rgb(${bgColor.red}, ${bgColor.green}, ${bgColor.blue})`
   }
+
+  container.html('')
 
   new HTML('div')
     .styleJs({
@@ -181,14 +182,36 @@ const load = async (songId: string): Promise<void> => {
     )
     .appendTo(container)
 
-  const url = videoData?.adaptiveFormats.find(
-    (x: AdaptiveFormat) => x.itag === '251'
+  const itags = [
+    '141',
+    '251',
+    '140',
+    '171',
+    '250',
+    '249',
+    '139'
+  ]
+
+  let _itag = 0
+
+  let url = videoData?.adaptiveFormats.find(
+    (x: AdaptiveFormat) => x.itag === itags[_itag]
   )?.url
+
+  while (url == null) {
+    if (_itag === itags.length) break
+    url = videoData?.adaptiveFormats.find(
+      (x: AdaptiveFormat) => x.itag === itags[_itag]
+    )?.url
+    _itag++
+  }
+
+  if (url == null) throw new Error('URL is null!')
 
   audio.src = await audioUrlToDataUrl(
     `https://corsproxy.org/?${encodeURIComponent(
       `https://invidious.lunar.icu/videoplayback${
-        url?.split('/videoplayback')[1] as string
+        url?.split('/videoplayback')[1]
       }`
     )}`
   )
