@@ -197,6 +197,7 @@ const load = async (songId: string): Promise<void> => {
   let url = videoData?.adaptiveFormats.find(
     (x: AdaptiveFormat) => x.itag === itags[_itag]
   )?.url
+  _itag++
 
   while (url == null) {
     if (_itag === itags.length) break
@@ -204,7 +205,8 @@ const load = async (songId: string): Promise<void> => {
       (x: AdaptiveFormat) => x.itag === itags[_itag]
     )?.url
     console.log('tried ' + itags[_itag], url)
-    _itag++
+    if (url == null) _itag++
+    else break
   }
 
   if (url == null) throw new Error('URL is null!')
