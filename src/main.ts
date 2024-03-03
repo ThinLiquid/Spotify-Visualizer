@@ -117,10 +117,6 @@ const load = async (songId: string): Promise<void> => {
   const lyricsData = await getLyrics(songId)
   const songData = await getSongData(songId)
   const audioFeatures = await getAudioFeatures(songId)
-  const recommended = await getRecommendations(
-    songId,
-    songData.artists.map((x) => x.id).join(',')
-  )
 
   const searchData = await getYouTubeResults(songData)
   let videoData
@@ -226,7 +222,12 @@ const load = async (songId: string): Promise<void> => {
     run().catch(e => console.error(e))
   }
 
-  if (queue.length === i - 1) {
+  console.log('queue', queue.length, i)
+  if (queue.length === i) {
+    const recommended = await getRecommendations(
+      songId,
+      songData.artists.map((x) => x.id).join(',')
+    )
     recommended.tracks.forEach((track: any) => {
       queue.push(track.id)
     })
