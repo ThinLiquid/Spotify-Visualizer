@@ -17,6 +17,7 @@
     "@datkat21/html": "^1.1.6",
     "colorthief": "^2.4.0",
     "eruda": "^3.0.1",
+    "localforage": "^1.10.0",
     "spotify-types": "^1.0.7"
   }
 }

@@ -20,7 +20,9 @@ import {
   handleProgressBar,
   handleVisualizer
 } from './handlers'
+import localForage from 'localforage'
 
+localForage.setDriver([localForage.WEBSQL, localForage.INDEXEDDB]);
 const colorThief = new ColorThief()
 
 eruda.init()
@@ -206,6 +208,17 @@ const load = async (songId: string): Promise<void> => {
   for (const itag of itags) {
     for (const fmt of videoData.adaptiveFormats) {
       if (fmt.itag === itag) {
+        const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
+          `https://invidious.lunar.icu/videoplayback${
+            fmt.url?.split('/videoplayback')[1]
+          }`
+        )}`)
+        if (res.status !== 200) {
+          console.log('fail', res.url, res.status)
+          continue
+        } else {
+          console.log('success', res.url, res.status)
+        }
         format = fmt
         url = fmt.url
         break
@@ -215,19 +228,25 @@ const load = async (songId: string): Promise<void> => {
   }
 
   if (url == null) {
-    console.log('fail', format, url)
     throw new Error('URL is null!')
   }
 
-  console.log('success', format, url)
+  if ((await localForage.getItem(songId)) !== null) {
+    audio.src = (await localForage.getItem(songId))!
+  } else {
+    audio.src = await audioUrlToDataUrl(
+      `https://corsproxy.org/?${encodeURIComponent(
+        `https://invidious.lunar.icu/videoplayback${
+          url?.split('/videoplayback')[1]
+        }`
+      )}`
+    )
+    await localForage.setItem(songId, audio.src)
+    await localForage.setItem('_' + songId, JSON.stringify({ songData }))
+  }
 
-  audio.src = await audioUrlToDataUrl(
-    `https://corsproxy.org/?${encodeURIComponent(
-      `https://invidious.lunar.icu/videoplayback${
-        url?.split('/videoplayback')[1]
-      }`
-    )}`
-  )
+  
+
   const metadata = new MediaMetadata({
     title: songData.name,
     artist: songData.artists.map((x) => x.name).join(', '),
@@ -290,7 +309,35 @@ audio.ondurationchange = () => {
   done = true
 }
 
-const results = new HTML('div')
+const results = new HTML('div');
+
+(window as any).localForage = localForage;
+
+localForage.ready(async () => {
+  for (const key of (await localForage.keys())) {
+    console.log(key)
+    const track = await localForage.getItem('_' + key).songData
+    results.append(
+      new HTML('div')
+        .text(
+        `${track.name} - ${track.artists
+          .map((x) => x.name)
+          .join(', ')}`
+        )
+        .on('mouseup', () => {
+          songId = key
+          if (songId === (window as any).prev) return
+
+          queue = []
+          i = 0
+          load(key).catch(e => console.error(e))
+        })
+        .styleJs({
+          padding: '2.5px 0'
+        })
+    )
+  }
+})
 
 new HTML('div')
   .styleJs({
