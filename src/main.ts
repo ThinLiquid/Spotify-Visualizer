@@ -247,8 +247,8 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
         }`
       )}`
     )
-    await localForage.setItem(songId, audio.src)
-    await localForage.setItem('_' + songId, JSON.stringify({ songData, lyricsData }))
+    localForage.setItem(songId, audio.src)
+    localForage.setItem('_' + songId, JSON.stringify({ songData, lyricsData }))
   }
 
   
