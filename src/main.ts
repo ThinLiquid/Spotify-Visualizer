@@ -205,7 +205,10 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
       '171',
       '250',
       '249',
-      '139'
+      '139',
+      '37',
+      '85',
+      '96'
     ]
 
     const invs = [
