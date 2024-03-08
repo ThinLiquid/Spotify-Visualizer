@@ -235,10 +235,10 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
             }`
           )}`)
           if (res.status !== 200) {
-            console.log('fail', res.url, res.status)
+            console.log('fail', res.url, res.status, itag)
             continue
           } else {
-            console.log('success', res.url, res.status)
+            console.log('success', res.url, res.status, itag)
           }
           inv = owo
           format = fmt
