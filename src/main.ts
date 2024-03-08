@@ -195,6 +195,7 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
 
     let format
     let url
+    let inv
 
   if (videoData) {
     const itags = [
@@ -206,15 +207,23 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
       '249',
       '139'
     ]
+
+    const invs = [
+      'https://invidious.lunar.icu',
+      'https://yt.artemislena.eu',
+      'https://yt.cdaut.de',
+      'https://inv.n8pjl.ca'
+    ]
   
     console.log(videoData?.adaptiveFormats)
   
     if (videoData?.adaptiveFormats == null) throw new Error('No formats found!')
-    for (const itag of itags) {
+    for (const owo of invs) {
+      for (const itag of itags) {
       for (const fmt of videoData.adaptiveFormats) {
         if (fmt.itag === itag) {
           const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
-            `https://invidious.lunar.icu/videoplayback${
+            `${owo}/videoplayback${
               fmt.url?.split('/videoplayback')[1]
             }`
           )}`)
@@ -224,12 +233,14 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
           } else {
             console.log('success', res.url, res.status)
           }
+          inv = owo
           format = fmt
           url = fmt.url
           break
         }
       }
       if (format) break
+    }
     }
   
     if (url == null) {
