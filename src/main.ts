@@ -215,7 +215,11 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
       'https://invidious.lunar.icu',
       'https://yt.artemislena.eu',
       'https://yt.cdaut.de',
-      'https://inv.n8pjl.ca'
+      'https://inv.n8pjl.ca',
+      'https://invidious.perennialte.ch',
+      'https://iv.melmac.space',
+      'https://invidious.einfachzocken.eu',
+      'https://invidious.jing.rocks'
     ]
   
     console.log(videoData?.adaptiveFormats)
