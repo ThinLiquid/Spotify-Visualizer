@@ -253,7 +253,7 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
   } else {
     audio.src = await audioUrlToDataUrl(
       `https://corsproxy.org/?${encodeURIComponent(
-        `https://invidious.lunar.icu/videoplayback${
+        `${inv}/videoplayback${
           url?.split('/videoplayback')[1]
         }`
       )}`
