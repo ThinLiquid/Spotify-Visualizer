@@ -223,11 +223,32 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
     ]
   
     console.log(videoData?.adaptiveFormats)
+    console.log(videoData?.formatStreams)
   
-    if (videoData?.adaptiveFormats == null) throw new Error('No formats found!')
+    if (videoData?.adaptiveFormats == null) throw new Error('No adaptive formats found!')
+    if (videoData?.formatStreams == null) throw new Error('No format streams found!')
     for (const owo of invs) {
       for (const itag of itags) {
       for (const fmt of videoData.adaptiveFormats) {
+        if (fmt.itag === itag) {
+          const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
+            `${owo}/videoplayback${
+              fmt.url?.split('/videoplayback')[1]
+            }`
+          )}`)
+          if (res.status !== 200) {
+            console.log('fail', res.url, res.status, itag)
+            continue
+          } else {
+            console.log('success', res.url, res.status, itag)
+          }
+          inv = owo
+          format = fmt
+          url = fmt.url
+          break
+        }
+      }
+      for (const fmt of videoData.formatStreams) {
         if (fmt.itag === itag) {
           const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
             `${owo}/videoplayback${
