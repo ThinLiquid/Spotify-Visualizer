@@ -248,6 +248,13 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
           break
         }
       }
+      if (format) break
+    }
+    }
+  
+    if (url == null) {
+      for (const owo of invs) {
+      for (const itag of itags) {
       for (const fmt of videoData.formatStreams) {
         if (fmt.itag === itag) {
           const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
@@ -270,9 +277,7 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
       if (format) break
     }
     }
-  
-    if (url == null) {
-      throw new Error('URL is null!')
+      if (url == null) throw new Error('URL is null!')
     }
   }
 
