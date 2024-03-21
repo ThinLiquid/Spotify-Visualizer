@@ -212,6 +212,10 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
     ]
 
     const invs = [
+      'https://pipedproxy-bom.kavin.rocks',
+      'https://pipedapi.tokhmi.xyz',
+      'https://pipedapi.moomoo.me',
+      'https://pipedapi.syncpundit.io'.
       'https://invidious.lunar.icu',
       'https://yt.artemislena.eu',
       'https://yt.cdaut.de',
@@ -258,7 +262,7 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
       for (const fmt of videoData.formatStreams) {
         if (fmt.itag === itag) {
           const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
-            `https://pipedapi.kavin.rocks/videoplayback${
+            `${owo}/videoplayback${
               fmt.url?.split('/videoplayback')[1]
             }`
           )}`)
