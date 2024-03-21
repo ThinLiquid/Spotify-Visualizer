@@ -215,7 +215,7 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
       'https://pipedproxy-bom.kavin.rocks',
       'https://pipedapi.tokhmi.xyz',
       'https://pipedapi.moomoo.me',
-      'https://pipedapi.syncpundit.io'.
+      'https://pipedapi.syncpundit.io',
       'https://invidious.lunar.icu',
       'https://yt.artemislena.eu',
       'https://yt.cdaut.de',
