@@ -258,7 +258,7 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
       for (const fmt of videoData.formatStreams) {
         if (fmt.itag === itag) {
           const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
-            `${owo}/videoplayback${
+            `https://pipedapi.kavin.rocks/videoplayback${
               fmt.url?.split('/videoplayback')[1]
             }`
           )}`)
