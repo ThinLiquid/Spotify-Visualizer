@@ -232,7 +232,7 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
       for (const fmt of videoData.adaptiveFormats) {
         if (fmt.itag === itag) {
           const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
-            `https://pipedapi.kavin.rocks/videoplayback${
+            `${owo}/videoplayback${
               fmt.url?.split('/videoplayback')[1]
             }`
           )}`)
