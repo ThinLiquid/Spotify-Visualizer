@@ -10,7 +10,6 @@ import {
   getSpotifyResults
 } from './spotify'
 import { getYouTubeResults, getYouTubeVideo } from './youtube'
-import { SearchVideo } from './types'
 import { audioUrlToDataUrl, decimalToRGB, getContrastColor } from './utils'
 import {
   handleLyrics,
@@ -21,7 +20,7 @@ import {
 import localForage from 'localforage'
 import { Track } from 'spotify-types'
 
-localForage.setDriver([localForage.WEBSQL, localForage.INDEXEDDB]);
+await localForage.setDriver([localForage.WEBSQL, localForage.INDEXEDDB])
 const colorThief = new ColorThief()
 
 eruda.init()
@@ -101,7 +100,7 @@ const container = new HTML('div')
   })
   .appendTo(document.body)
 
-let songId: string | undefined | null
+let songId
 const audio = new Audio()
 let queue: string[] = [];
 (window as any).prev = ''
@@ -121,19 +120,10 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
     songData = await getSongData(songId)
   }
 
-  let searchData;
-  let videoData;
+  console.log(songData)
 
-  if ((await localForage.getItem(songId)) == null) {
-    searchData = await getYouTubeResults(songData)
-
-    for (const data of searchData) {
-      if (!('videoId' in data)) continue
-      videoData = await getYouTubeVideo((data as SearchVideo).videoId)
-      console.log(videoData)
-      if (videoData !== null) break
-    }
-  }
+  const searchData = await getYouTubeResults(songData)
+  const videoData = await getYouTubeVideo(searchData.items[0].url)
 
   progress.styleJs({
     animation: 'loading 1s infinite linear',
@@ -170,9 +160,7 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
           height: '35px'
         })
         .on('load', (e) => {
-          if (textColor != null) {
-            return;
-          }
+          if (textColor != null) return
           const [r, g, b] = colorThief.getColor(e.target as HTMLImageElement)
           bgColor = `rgb(${r}, ${g}, ${b})`
           document.body.style.background = `rgb(${r}, ${g}, ${b})`
@@ -181,125 +169,26 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
         .styleJs({
           fontFamily: 'Satoshi, monospace',
           color:
-            textColor == null
-              ? getContrastColor()
-              : `rgb(${textColor?.red}, ${textColor?.green}, ${textColor?.blue})`
+        textColor == null
+          ? getContrastColor()
+          : `rgb(${textColor?.red}, ${textColor?.green}, ${textColor?.blue})`
         })
         .text(
-          `${songData.name}\n${songData.artists
+      `${songData.name}\n${songData.artists
             .map((e: any) => e.name)
             .join(', ')}`
         )
     )
     .appendTo(container)
 
-    let format
-    let url
-    let inv
-
-  if (videoData) {
-    const itags = [
-      '141',
-      '251',
-      '140',
-      '171',
-      '250',
-      '249',
-      '139',
-      '37',
-      '85',
-      '96'
-    ]
-
-    const invs = [
-      'https://pipedproxy-bom.kavin.rocks',
-      'https://pipedapi.tokhmi.xyz',
-      'https://pipedapi.moomoo.me',
-      'https://pipedapi.syncpundit.io',
-      'https://invidious.lunar.icu',
-      'https://yt.artemislena.eu',
-      'https://yt.cdaut.de',
-      'https://inv.n8pjl.ca',
-      'https://invidious.perennialte.ch',
-      'https://iv.melmac.space',
-      'https://invidious.einfachzocken.eu',
-      'https://invidious.jing.rocks'
-    ]
-  
-    console.log(videoData?.adaptiveFormats)
-    console.log(videoData?.formatStreams)
-  
-    if (videoData?.adaptiveFormats == null) throw new Error('No adaptive formats found!')
-    if (videoData?.formatStreams == null) throw new Error('No format streams found!')
-    for (const owo of invs) {
-      for (const itag of itags) {
-      for (const fmt of videoData.adaptiveFormats) {
-        if (fmt.itag === itag) {
-          const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
-            `${owo}/videoplayback${
-              fmt.url?.split('/videoplayback')[1]
-            }`
-          )}`)
-          if (res.status !== 200) {
-            console.log('fail', res.url, res.status, itag)
-            continue
-          } else {
-            console.log('success', res.url, res.status, itag)
-          }
-          inv = owo
-          format = fmt
-          url = fmt.url
-          break
-        }
-      }
-      if (format) break
-    }
-    }
-  
-    if (url == null) {
-      for (const owo of invs) {
-      for (const itag of itags) {
-      for (const fmt of videoData.formatStreams) {
-        if (fmt.itag === itag) {
-          const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(
-            `${owo}/videoplayback${
-              fmt.url?.split('/videoplayback')[1]
-            }`
-          )}`)
-          if (res.status !== 200) {
-            console.log('fail', res.url, res.status, itag)
-            continue
-          } else {
-            console.log('success', res.url, res.status, itag)
-          }
-          inv = owo
-          format = fmt
-          url = fmt.url
-          break
-        }
-      }
-      if (format) break
-    }
-    }
-      if (url == null) throw new Error('URL is null!')
-    }
-  }
-
-  if ((await localForage.getItem(songId)) !== null) {
-    audio.src = (await localForage.getItem(songId))!
+  if ((await localForage.getItem(songId)) === null) {
+    audio.src = await audioUrlToDataUrl(`${videoData.audioStreams.sort((x, y) => x.bitrate - y.bitrate)[0].url}`)
+    localForage.setItem(songId, audio.src).catch(e => console.error(e))
+    const data = JSON.stringify({ songData, lyricsData })
+    localForage.setItem(`_${songId}`, data).catch(e => console.error(e))
   } else {
-    audio.src = await audioUrlToDataUrl(
-      `https://corsproxy.org/?${encodeURIComponent(
-        `${inv}/videoplayback${
-          url?.split('/videoplayback')[1]
-        }`
-      )}`
-    )
-    localForage.setItem(songId, audio.src)
-    localForage.setItem('_' + songId, JSON.stringify({ songData, lyricsData }))
+    audio.src = (await localForage.getItem(songId)) as never
   }
-
-  
 
   const metadata = new MediaMetadata({
     title: songData.name,
@@ -358,22 +247,25 @@ const load = async (songId: string, songData?: Track, lyricsData?: any): Promise
 let done = false
 audio.ondurationchange = () => {
   if (done) return
-  handleVisualizer(ctx as CanvasRenderingContext2D, canvas, audio)
+  handleVisualizer(ctx as CanvasRenderingContext2D, canvas, audio, container)
   done = true
 }
 
 const results = new HTML('div');
 
-(window as any).localForage = localForage;
+(window as any).localForage = localForage
 
-const history = async () => {
+const history = async (): Promise<void> => {
   for (const key of (await localForage.keys())) {
+    if (key.startsWith('_')) continue
     console.log(key)
-    
-    const track: Track = JSON.parse(await localForage.getItem('_' + key) as string).songData
-    let lyricsData: any = JSON.parse(await localForage.getItem('_' + key) as string).lyricsData
 
-    if (!lyricsData) {
+    const _track = JSON.parse(await localForage.getItem(`_${key}`) as never)
+    console.log(_track)
+    const track: Track = _track.songData
+    let lyricsData: any = _track.lyricsData
+
+    if (lyricsData == null) {
       lyricsData = await getLyrics(key)
     }
 
@@ -399,9 +291,9 @@ const history = async () => {
   }
 }
 
-localForage.ready(async () => {
-  await history();
-})
+localForage.ready(() => {
+  history().catch(e => console.error(e))
+}).catch(e => console.error(e))
 
 new HTML('div')
   .styleJs({
@@ -422,7 +314,7 @@ new HTML('div')
         if (e.key === 'Enter') {
           if (e.target.value === '') {
             results.html('')
-            history();
+            history().catch(e => console.error(e))
             return
           }
           getSpotifyResults(

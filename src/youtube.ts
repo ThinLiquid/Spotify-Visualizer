@@ -1,17 +1,15 @@
+import { Track } from 'spotify-types'
 import { SearchResults, Video } from './types'
 
-export const getYouTubeResults = async (d: any): Promise<SearchResults> => {
+export const getYouTubeResults = async (d: Track): Promise<SearchResults> => {
   const res = await fetch(
-    `https://corsproxy.io/?https://invidious.lunar.icu/api/v1/search?q=%22${encodeURIComponent(
-      d.name
-    )} ${encodeURIComponent(d.artists[0].name)} - Topic%22`
+    `https://piped-api.lunar.icu/search?q=${encodeURIComponent(`${d.name} - ${d.artists[0].name}`)}&filter=music_songs`
   )
-  const data = await res.json()
-  return data
+  return await res.json()
 }
 
-export const getYouTubeVideo = async (videoId: string): Promise<Video> => {
-  const res = await fetch(`https://corsproxy.io/?https://invidious.lunar.icu/api/v1/videos/${videoId}`)
-  const videoData = await res.json()
-  return videoData
+export const getYouTubeVideo = async (url: string): Promise<Video> => {
+  const videoId = url.split('?v=')[1]
+  const res = await fetch(`https://piped-api.lunar.icu/streams/${videoId}`)
+  return await res.json()
 }

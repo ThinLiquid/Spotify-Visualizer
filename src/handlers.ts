@@ -1,4 +1,3 @@
-import { AudioFeatures } from 'spotify-types'
 import { decimalToRGB, getContrastColor, until } from './utils'
 import HTML from '@datkat21/html'
 
@@ -53,15 +52,15 @@ export const handleLyrics = async (
     })
     last2 = new HTML('h2')
       .text(
-        index !== lyricsData.lyrics.lines.length - 1
-          ? lyricsData.lyrics.lines[index + 1].words
-          : ''
+        index === lyricsData.lyrics.lines.length - 1
+          ? ''
+          : lyricsData.lyrics.lines[index + 1].words
       )
       .styleJs({
         color: `rgb(${r}, ${g}, ${b})`
       })
     last3 = new HTML('h2')
-      .text(index !== 0 ? lyricsData.lyrics.lines[index - 1].words : '...')
+      .text(index === 0 ? '...' : lyricsData.lyrics.lines[index - 1].words)
       .styleJs({
         color: `rgb(${r}, ${g}, ${b})`,
         fontSize: '17px'
@@ -77,7 +76,8 @@ export const handleLyrics = async (
 export const handleVisualizer = (
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
-  audio: HTMLAudioElement
+  audio: HTMLAudioElement,
+  container: HTML
 ): void => {
   const audioCtx = new AudioContext()
   const audioSource = audioCtx.createMediaElementSource(audio)
@@ -93,6 +93,14 @@ export const handleVisualizer = (
   let x = 0
   let barHeight
   function animate (): void {
+    const averageFrequency = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength
+    const scaleFactor = 1 + averageFrequency / 500
+    container.styleJs({
+      transform: `scale(${scaleFactor}) translateY(-${50 / scaleFactor}%)`,
+      filter: `blur(${averageFrequency / 400}px)`,
+      textShadow: `0 0 ${averageFrequency / 2}px white`
+    })
+
     x = 0
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     analyser.getByteFrequencyData(dataArray)
@@ -107,34 +115,6 @@ export const handleVisualizer = (
   }
 
   animate()
-}
-
-export const handleAnimations = (
-  container: HTML,
-  overlay: HTML,
-  songId: string,
-  audioFeatures: AudioFeatures
-): void => {
-  const e = setInterval(() => {
-    if ((window as any).prev !== songId) {
-      clearInterval(e)
-      return
-    }
-    container.classOn('bump')
-    setTimeout(() => {
-      container.classOff('bump')
-    }, 500)
-  }, (60_000 / audioFeatures.tempo) * 2)
-  const e1 = setInterval(() => {
-    if ((window as any).prev !== songId) {
-      clearInterval(e1)
-      return
-    }
-    overlay.classOn('bg')
-    setTimeout(() => {
-      overlay.classOff('bg')
-    }, 250)
-  }, 60_000 / audioFeatures.tempo)
 }
 
 export const handleProgressBar = (

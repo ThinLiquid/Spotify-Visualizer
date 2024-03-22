@@ -7,13 +7,12 @@ export const getCredentials = async (
   const res = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: {
-      Authorization: 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET),
+      Authorization: `Basic ${btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)}`,
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: 'grant_type=client_credentials'
   })
-  const data = await res.json()
-  return data
+  return await res.json()
 }
 
 export const getSongData = async (songId: string): Promise<Track> => {
@@ -25,15 +24,14 @@ export const getSongData = async (songId: string): Promise<Track> => {
   if (res.status !== 200) {
     throw new Error(`${res.status} Failed request... track - ${songId}\n${await res.text()}`)
   }
-  const data = await res.json()
-  return data
+  return await res.json()
 }
 
 export const getAudioFeatures = async (
   songId: string
 ): Promise<AudioFeatures> => {
   const res = await fetch(
-    'https://api.spotify.com/v1/audio-features/' + songId,
+    `https://api.spotify.com/v1/audio-features/${songId}`,
     {
       headers: {
         Authorization: `Bearer ${window.creds.access_token}`
@@ -43,18 +41,21 @@ export const getAudioFeatures = async (
   if (res.status !== 200) {
     throw new Error(`${res.status} Failed request... features - ${songId}\n${await res.text()}`)
   }
-  const data = await res.json()
-  return data
+  return await res.json()
 }
 
 export const getLyrics = async (songId: string): Promise<any> => {
   const res = await fetch(`https://corsproxy.io/?https://lyrix.vercel.app/getLyrics/${songId}`)
   if (res.status !== 200) {
-    if (res.status === 500) return null
+    if (res.status === 500) {
+      console.log('no lyrics')
+      return null
+    }
     else throw new Error(`Failed request... lyrics - ${songId}`)
   }
-  const data = await res.json()
-  return data
+  const _ = await res.json()
+  console.log(_)
+  return _
 }
 
 export const getRecommendations = async (
@@ -75,8 +76,7 @@ export const getRecommendations = async (
   if (res.status !== 200) {
     throw new Error(`${res.status} Failed request... recommendations - ${songId}\n${await res.text()}`)
   }
-  const data = await res.json()
-  return data
+  return await res.json()
 }
 
 export const getSpotifyResults = async (q: string): Promise<SearchContent> => {
@@ -91,6 +91,5 @@ export const getSpotifyResults = async (q: string): Promise<SearchContent> => {
   if (res.status !== 200) {
     throw new Error(`${res.status} Failed request... search - ${q}\n${await res.text()}`)
   }
-  const data = await res.json()
-  return data
+  return await res.json()
 }

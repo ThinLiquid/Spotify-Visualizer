@@ -9,7 +9,7 @@ export function getContrastColor (): string {
     [r, g, b]
       .map((x) => {
         const hex = x.toString(16)
-        return hex.length === 1 ? '0' + hex : hex
+        return hex.length === 1 ? `0${hex}` : hex
       })
       .join('')
 
@@ -39,7 +39,7 @@ export function invertColor (hex: string): string {
     hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
   }
   if (hex.length !== 6) {
-    throw new Error('Invalid HEX color. ' + hex)
+    throw new Error(`Invalid HEX color. ${hex}`)
   }
   const r = parseInt(hex.slice(0, 2), 16)
   const g = parseInt(hex.slice(2, 4), 16)
@@ -79,11 +79,16 @@ export async function audioUrlToDataUrl (audioUrl: string): Promise<string> {
   const reader = response.body?.getReader()
   const chunks: string[] = []
 
+  console.group('Loading...')
+  let i = 0
   while (true) {
     const { done, value } = await reader?.read() as never
     if (done) break
     chunks.push(value)
+    console.log(`chunk ${i}`)
+    i++
   }
+  console.groupEnd()
   const blob = new Blob(chunks, {
     type: response.headers.get('Content-Type') as string | undefined
   })
